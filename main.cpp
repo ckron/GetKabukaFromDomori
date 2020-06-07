@@ -12,6 +12,7 @@ void loadKeys();
 std::vector<cv::Point> find(cv::Mat src, cv::Mat tempL, float threshold);
 void sortKabuketa(std::vector<int>* poss, std::vector<int>* vals);
 cv::Mat adjustImage900(cv::Mat src);
+std::vector<std::string> getDirectoryPathList(const char* dirPath);
 
 void sortKabuketa(std::vector<int>* poss, std::vector<int>* vals)
 {
@@ -40,7 +41,7 @@ int pickupKabukaInImage(cv::Mat src)
 	std::vector<int> vals;
 
 	for(int i=0; i<MAX_KEYS; i++) {
-		finds[i] = find(src, keys[i], 0.93);
+		finds[i] = find(src, keys[i], 0.95);
 	}
 
 	for(int i=0; i<MAX_KEYS; i++) {
@@ -55,10 +56,9 @@ int pickupKabukaInImage(cv::Mat src)
 	sortKabuketa(&poss, &vals);
 
 	int kabuka = 0;
-	for(int i=0; i<3; i++) {
+	for(int i=0; i<vals.size(); i++) {
 		kabuka += vals[i] * (pow(10, i));
 	}
-
 	return kabuka;
 }
 
@@ -90,7 +90,18 @@ std::vector<cv::Point> find(cv::Mat src, cv::Mat tempL, float threshold)
 			uchar* uctemp = &res.data[y * res.cols * 4 + x * 4];
 			float* ftemp = (float*)(uctemp);
 			if (*ftemp > threshold) {
-				maxLocs.push_back(cv::Point(x, y));
+				bool isExist = false;
+				for(auto ml : maxLocs) {
+					// ç°Ç‹Ç≈Ç…å©Ç¬Ç©Ç¡ÇΩèÍèäÇ©ÇÁÇ†ÇÈíˆìxó£ÇÍÇ»Ç¢Ç∆åüèoàµÇ¢Ç…ÇµÇ»Ç¢.
+					int d = pow(y-ml.y, 2) + pow(x-ml.x, 2);
+					if(d < 50) {
+						isExist = true;
+					}
+				}
+
+				if(!isExist) {
+					maxLocs.push_back(cv::Point(x, y));
+				}
 			}
 		}
 	}
@@ -101,26 +112,39 @@ std::vector<cv::Point> find(cv::Mat src, cv::Mat tempL, float threshold)
 cv::Mat adjustImage900(cv::Mat src)
 {
 	cv::Mat dst;
-	cv::resize(src, dst, cv::Size(900, 506));
+	cv::resize(src, dst, cv::Size(900, 506), cv::INTER_LINEAR);
 
 	return dst;
 }
 
+std::vector<std::string> getDirectoryPathList(const char* dirPath)
+{
+	std::vector<std::string> pathList;
+	for(const std::filesystem::directory_entry& f
+				: std::filesystem::directory_iterator(dirPath)) {
+		pathList.push_back(f.path().string());
+	}
+
+	return pathList;
+}
+
 int main(int argc, char* argv[])
 {
-	cv::Mat src = cv::imread("img/sample/domori.jpg");
-
-	if(src.cols != 900) {
-		src = adjustImage900(src);
-	}
+	std::vector<std::string> pathList = getDirectoryPathList("img/sample");
 
 	loadKeys();
 
-	int kabuka = pickupKabukaInImage(src);
-	
-	std::cout << kabuka << std::endl;
-	cv::imshow("image", src);
-	
+	for(auto p : pathList) {
+		cv::Mat src = cv::imread(p);
+		if (src.cols != 900) {
+			src = adjustImage900(src);
+		}
+		int kabuka = pickupKabukaInImage(src);
+
+		std::cout << kabuka << std::endl;
+		cv::imshow("image", src);
+	}
+
 	cv::waitKey();
 
 	return 0;
