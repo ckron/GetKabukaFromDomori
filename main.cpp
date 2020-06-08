@@ -5,16 +5,7 @@
 
 #include "KabukaDetector.h"
 
-cv::Mat adjustImage900(cv::Mat src);
 std::vector<std::string> getDirectoryPathList(const char* dirPath);
-
-cv::Mat adjustImage900(cv::Mat src)
-{
-	cv::Mat dst;
-	cv::resize(src, dst, cv::Size(900, 506), cv::INTER_LINEAR);
-
-	return dst;
-}
 
 std::vector<std::string> getDirectoryPathList(const char* dirPath)
 {
@@ -35,8 +26,8 @@ int main(int argc, char* argv[])
 
 	for(auto p : pathList) {
 		cv::Mat src = cv::imread(p);
-		if (src.cols != 900) {
-			src = adjustImage900(src);
+		if (src.cols == 1280) {
+			std::cout << "‰ð‘œ“x‚ª³‚µ‚­‚ ‚è‚Ü‚¹‚ñ(1280x720 only)" << std::endl;
 		}
 		int kabuka = kd.pickupKabuka(src);
 
