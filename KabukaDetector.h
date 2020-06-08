@@ -4,7 +4,6 @@
 
 class KabukaDetector
 {
-
 public:
 	KabukaDetector() {
 		loadKeys();
@@ -41,7 +40,7 @@ public:
 
 private:
 	static const int MAX_KEYS = 10;
-	cv::Mat keys[10];
+	cv::Mat keys[MAX_KEYS];
 	void sortKabuketa(std::vector<int>* poss, std::vector<int>* vals)
 	{
 		for (int j = 0; j < poss->size() - 1; j++) {
