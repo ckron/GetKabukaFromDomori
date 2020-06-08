@@ -21,13 +21,14 @@ void sortKabuketa(std::vector<int>* poss, std::vector<int>* vals)
 			//std::cout << std::to_string(j) << std::endl;
 			//std::cout << std::to_string((*poss)[i]) << ", " << std::to_string((*poss)[i+1]) << std::endl;
 			//std::cout << std::to_string((*vals)[i]) << ", " << std::to_string((*vals)[i + 1]) << std::endl;
-			if((*poss)[i] < (*poss)[i+1]) {
+			int n = i+1;
+			if((*poss)[i] < (*poss)[n]) {
 				int tempP = (*poss)[i];
 				int tempV = (*vals)[i];
-				(*poss)[i] = (*poss)[i+1];
-				(*vals)[i] = (*vals)[i+1];
-				(*poss)[i+1] = tempP;
-				(*vals)[i+1] = tempV;
+				(*poss)[i] = (*poss)[n];
+				(*vals)[i] = (*vals)[n];
+				(*poss)[n] = tempP;
+				(*vals)[n] = tempV;
 			}
 		}
 	}
