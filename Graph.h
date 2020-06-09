@@ -7,10 +7,14 @@
 class Graph
 {
 public:
-	void setData(std::vector<int>* v, std::vector<char[3]>* d)
+	void setData(std::vector<int>* v, std::vector<std::vector<int>>* d)
 	{
 		values = v;
 		dates = d;
+
+		for(auto da : (*d)) {
+			std::cout << da[0] << ", " << da[1] << ", " << da[2] << std::endl;
+		}
 	}
 
 	cv::Mat draw(int width, int height)
@@ -30,7 +34,7 @@ public:
 	}
 private:
 	std::vector<int>* values;
-	std::vector<char[3]>* dates;
+	std::vector<std::vector<int>>* dates;
 
 	// 10px margin.
 	static const int GRAPH_MARGIN = 20;
@@ -74,19 +78,28 @@ private:
 		for(int i=0; i<values->size(); i++) {
 			cv::Point p = adjustPos((*values)[i], VALUE_TENJO, 0,
 																yAxisStart, yAxisEnd);
-			p.x = xAxisStart.x + 100 + 10 * i;
+			cv::Point d = adjustPos(i, dates->size(), 0,
+																xAxisEnd, xAxisStart);
+			p.x = d.x;
 
+			cv::putText(img, std::to_string((*values)[i]), p,
+									cv::FONT_HERSHEY_SIMPLEX, 0.4,
+									cv::Scalar(0, 0, 255));
 			cv::circle(img, p, 3, cv::Scalar(0, 0, 255));
 		}
 
 		for (int i=0; i<values->size()-1; i++) {
 			cv::Point p = adjustPos((*values)[i], VALUE_TENJO, 0,
 															yAxisStart, yAxisEnd);
-			p.x = xAxisStart.x + 100 + 10 * i;
+			cv::Point d = adjustPos(i, dates->size(), 0,
+															xAxisEnd, xAxisStart);
+			p.x = d.x;
 
 			cv::Point np = adjustPos((*values)[i+1], VALUE_TENJO, 0,
 															yAxisStart, yAxisEnd);
-			np.x = xAxisStart.x + 100 + 10 * (i+1);
+			cv::Point nd = adjustPos(i+1, dates->size(), 0,
+															xAxisEnd, xAxisStart);
+			np.x = nd.x;
 
 			cv::line(img, p, np, cv::Scalar(0, 0, 255));
 		}
