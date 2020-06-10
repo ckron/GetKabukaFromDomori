@@ -73,9 +73,7 @@ int main(int argc, char* argv[])
 
 	Graph gp;
 
-	gp.setData(&kabukaList, &dateList);
-
-	cv::imshow("image", gp.draw(800, 600));
+	cv::imshow("image", gp.draw(800, 600, &kabukaList, &dateList));
 	cv::waitKey();
 
 	return 0;

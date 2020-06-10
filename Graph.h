@@ -19,6 +19,8 @@ public:
 	void draw(cv::Mat img, std::vector<int>* v,
 							std::vector<std::vector<int>>* d)
 	{
+		cv::rectangle(img, rect, cv::Scalar::all(250), -1);
+
 		drawAxis(img);
 		drawPoints(img, v, d);
 	}
@@ -94,23 +96,11 @@ private:
 class Graph
 {
 public:
-	Graph(): values(NULL), dates(NULL) {};
-	Graph(std::vector<int>* v, std::vector<std::vector<int>>* d)
-		: values(v), dates(d)
-	{
-	};
+	Graph() {};
 	~Graph() {};
-	void setData(std::vector<int>* v, std::vector<std::vector<int>>* d)
-	{
-		values = v;
-		dates = d;
 
-		for(auto da : (*d)) {
-			std::cout << da[0] << ", " << da[1] << ", " << da[2] << std::endl;
-		}
-	}
-
-	cv::Mat draw(int width, int height)
+	cv::Mat draw(int width, int height,
+								std::vector<int>* v, std::vector<std::vector<int>>* d)
 	{
 		cv::Mat res(cv::Size(width, height), CV_8UC3,
 									cv::Scalar::all(BACKGROUND_COLOR));
@@ -124,16 +114,13 @@ public:
 														width - GRAPH_MARGIN * 2,
 														height - GRAPH_MARGIN * 2), 0, VALUE_TENJO);
 
-		chart.draw(res, values, dates);
+		chart.draw(res, v, d);
 
 		drawLabel(res);
 
 		return res;
 	}
 private:
-	std::vector<int>* values;
-	std::vector<std::vector<int>>* dates;
-
 	// 10px margin.
 	static const int GRAPH_MARGIN = 20;
 
