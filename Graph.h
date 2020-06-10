@@ -4,6 +4,16 @@
 
 #include <opencv2/opencv.hpp>
 
+class Chart
+{
+public:
+	Chart();
+	Chart(cv::Rect r): rect(r) {};
+	~Chart();
+private:
+	cv::Rect rect;
+};
+
 class Graph
 {
 public:
@@ -19,7 +29,8 @@ public:
 
 	cv::Mat draw(int width, int height)
 	{
-		cv::Mat res(cv::Size(width, height), CV_8UC3, cv::Scalar::all(BACKGROUND_COLOR));
+		cv::Mat res(cv::Size(width, height), CV_8UC3,
+									cv::Scalar::all(BACKGROUND_COLOR));
 		
 		if(res.empty()) { 
 			std::cout << "•`‰æÝ’è‚ªŠÔˆá‚Á‚Ä‚¢‚Ü‚·(width / height)" << std::endl;
