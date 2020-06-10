@@ -6,6 +6,34 @@
 
 class Label
 {
+public:
+	Label() {};
+	Label(cv::Point minP, cv::Point maxP)
+		:minPos(minP), maxPos(maxP)
+	{
+	};
+	~Label() {};
+	void draw(cv::Mat img, int minVal, int maxVal)
+	{
+		drawLabel(img, minVal, minPos);
+		drawLabel(img, maxVal, maxPos);
+	}
+	void draw(cv::Mat img, std::vector<std::vector<int>>* data)
+	{
+
+	}
+private:
+	cv::Point minPos;
+	cv::Point maxPos;
+
+	static const int USE_BLACK_COLOR = 10;
+
+	void drawLabel(cv::Mat img, int val, cv::Point pos)
+	{
+		cv::putText(img, std::to_string(val), pos,
+								cv::FONT_HERSHEY_SIMPLEX, 0.5,
+								cv::Scalar::all(USE_BLACK_COLOR));
+	}
 
 };
 
@@ -113,10 +141,11 @@ public:
 		chart = Chart(cv::Rect(GRAPH_MARGIN, GRAPH_MARGIN,
 														width - GRAPH_MARGIN * 2,
 														height - GRAPH_MARGIN * 2), 0, VALUE_TENJO);
+		label = Label(cv::Point(GRAPH_MARGIN, height - GRAPH_MARGIN),
+									cv::Point(GRAPH_MARGIN, GRAPH_MARGIN));
 
 		chart.draw(res, v, d);
-
-		drawLabel(res);
+		label.draw(res, 0, VALUE_TENJO);
 
 		return res;
 	}
@@ -131,18 +160,5 @@ private:
 	static const int VALUE_TENJO = 800;
 
 	Chart chart;
-
-	void drawLabel(cv::Mat img)
-	{
-		cv::Point yAxisTopLabel(GRAPH_MARGIN - 10, GRAPH_MARGIN);
-		cv::Point yAxisDownLabel(GRAPH_MARGIN - 10, img.rows - GRAPH_MARGIN);
-
-		cv::putText(img, std::to_string(VALUE_TENJO), cv::Point(yAxisTopLabel),
-								cv::FONT_HERSHEY_SIMPLEX, 0.5,
-								cv::Scalar::all(USE_BLACK_COLOR));
-		cv::putText(img, std::to_string(0), cv::Point(yAxisDownLabel),
-								cv::FONT_HERSHEY_SIMPLEX, 0.5,
-								cv::Scalar::all(USE_BLACK_COLOR));
-	}
-
+	Label label;
 };
