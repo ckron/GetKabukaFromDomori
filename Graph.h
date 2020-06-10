@@ -4,19 +4,102 @@
 
 #include <opencv2/opencv.hpp>
 
+class Label
+{
+
+};
+
 class Chart
 {
 public:
-	Chart();
-	Chart(cv::Rect r): rect(r) {};
-	~Chart();
+	Chart():rect(cv::Rect()), minVal(0), maxVal(0) {};
+	Chart(cv::Rect r, int minV, int maxV)
+		:rect(r), minVal(minV), maxVal(maxV) {};
+	~Chart() {};
+	void draw(cv::Mat img, std::vector<int>* v,
+							std::vector<std::vector<int>>* d)
+	{
+		drawAxis(img);
+		drawPoints(img, v, d);
+	}
 private:
 	cv::Rect rect;
+	int maxVal;
+	int minVal;
+
+	static const int USE_BLACK_COLOR = 10;
+
+	void drawAxis(cv::Mat img)
+	{
+		// draw X Axis.
+		line(img, cv::Point(rect.x, rect.y + rect.height),
+					cv::Point(rect.x + rect.width, rect.y + rect.height),
+					cv::Scalar::all(USE_BLACK_COLOR));
+		// draw Y Axis.
+		line(img, cv::Point(rect.x, rect.y),
+					cv::Point(rect.x, rect.y + rect.height),
+					cv::Scalar::all(USE_BLACK_COLOR));
+	}
+
+	cv::Point adjustPos(int val, int max, int min,
+											cv::Point maxPos, cv::Point minPos)
+	{
+		double d = max - min;
+		double m = (val - min) / d;
+		cv::Point vec = maxPos - minPos;
+
+		return minPos + (vec * m);
+	}
+
+	void drawPoints(cv::Mat img, std::vector<int>* v,
+										std::vector<std::vector<int>>* d)
+	{
+		cv::Point xAxisStart(rect.x, rect.y + rect.height);
+		cv::Point xAxisEnd(rect.x + rect.width, rect.y + rect.height);
+		cv::Point yAxisStart(rect.x, rect.y);
+		cv::Point yAxisEnd(rect.x, rect.y + rect.height);
+
+		for (int i = 0; i < v->size(); i++) {
+			cv::Point p = adjustPos((*v)[i], maxVal, 0,
+															yAxisStart, yAxisEnd);
+			cv::Point d = adjustPos(i, v->size(), 0,
+															xAxisEnd, xAxisStart);
+			p.x = d.x;
+
+			cv::putText(img, std::to_string((*v)[i]), p,
+									cv::FONT_HERSHEY_SIMPLEX, 0.4,
+									cv::Scalar(0, 0, 255));
+			cv::circle(img, p, 3, cv::Scalar(0, 0, 255));
+		}
+
+		for (int i = 0; i < v->size() - 1; i++) {
+			cv::Point p = adjustPos((*v)[i], maxVal, 0,
+															yAxisStart, yAxisEnd);
+			cv::Point d = adjustPos(i, v->size(), 0,
+															xAxisEnd, xAxisStart);
+			p.x = d.x;
+
+			cv::Point np = adjustPos((*v)[i + 1], maxVal, 0,
+															 yAxisStart, yAxisEnd);
+			cv::Point nd = adjustPos(i + 1, v->size(), 0,
+															 xAxisEnd, xAxisStart);
+			np.x = nd.x;
+
+			cv::line(img, p, np, cv::Scalar(0, 0, 255));
+		}
+	}
+
 };
 
 class Graph
 {
 public:
+	Graph(): values(NULL), dates(NULL) {};
+	Graph(std::vector<int>* v, std::vector<std::vector<int>>* d)
+		: values(v), dates(d)
+	{
+	};
+	~Graph() {};
 	void setData(std::vector<int>* v, std::vector<std::vector<int>>* d)
 	{
 		values = v;
@@ -37,8 +120,12 @@ public:
 			return cv::Mat();
 		}
 
-		drawAxis(res);
-		drawPoints(res);
+		chart = Chart(cv::Rect(GRAPH_MARGIN, GRAPH_MARGIN,
+														width - GRAPH_MARGIN * 2,
+														height - GRAPH_MARGIN * 2), 0, VALUE_TENJO);
+
+		chart.draw(res, values, dates);
+
 		drawLabel(res);
 
 		return res;
@@ -56,6 +143,8 @@ private:
 
 	static const int VALUE_TENJO = 800;
 
+	Chart chart;
+
 	void drawLabel(cv::Mat img)
 	{
 		cv::Point yAxisTopLabel(GRAPH_MARGIN - 10, GRAPH_MARGIN);
@@ -69,63 +158,4 @@ private:
 								cv::Scalar::all(USE_BLACK_COLOR));
 	}
 
-	cv::Point adjustPos(int val, int max, int min,
-												cv::Point maxPos, cv::Point minPos)
-	{
-		double d = max - min;
-		double m = (val - min) / d;
-		cv::Point vec = maxPos - minPos;
-
-		return minPos + (vec * m);
-	}
-
-	void drawPoints(cv::Mat img)
-	{
-		cv::Point xAxisStart(GRAPH_MARGIN, img.rows - GRAPH_MARGIN);
-		cv::Point xAxisEnd(img.cols - GRAPH_MARGIN, xAxisStart.y);
-		cv::Point yAxisStart(GRAPH_MARGIN, GRAPH_MARGIN);
-		cv::Point yAxisEnd(yAxisStart.x, img.rows - GRAPH_MARGIN);
-		
-		for(int i=0; i<values->size(); i++) {
-			cv::Point p = adjustPos((*values)[i], VALUE_TENJO, 0,
-																yAxisStart, yAxisEnd);
-			cv::Point d = adjustPos(i, dates->size(), 0,
-																xAxisEnd, xAxisStart);
-			p.x = d.x;
-
-			cv::putText(img, std::to_string((*values)[i]), p,
-									cv::FONT_HERSHEY_SIMPLEX, 0.4,
-									cv::Scalar(0, 0, 255));
-			cv::circle(img, p, 3, cv::Scalar(0, 0, 255));
-		}
-
-		for (int i=0; i<values->size()-1; i++) {
-			cv::Point p = adjustPos((*values)[i], VALUE_TENJO, 0,
-															yAxisStart, yAxisEnd);
-			cv::Point d = adjustPos(i, dates->size(), 0,
-															xAxisEnd, xAxisStart);
-			p.x = d.x;
-
-			cv::Point np = adjustPos((*values)[i+1], VALUE_TENJO, 0,
-															yAxisStart, yAxisEnd);
-			cv::Point nd = adjustPos(i+1, dates->size(), 0,
-															xAxisEnd, xAxisStart);
-			np.x = nd.x;
-
-			cv::line(img, p, np, cv::Scalar(0, 0, 255));
-		}
-	}
-
-	void drawAxis(cv::Mat img)
-	{
-		cv::Point xAxisStart(GRAPH_MARGIN, img.rows - GRAPH_MARGIN);
-		cv::Point xAxisEnd(img.cols - GRAPH_MARGIN, xAxisStart.y);
-		cv::Point yAxisStart(GRAPH_MARGIN, GRAPH_MARGIN);
-		cv::Point yAxisEnd(yAxisStart.x, img.rows - GRAPH_MARGIN);
-
-		// draw X Axis.
-		line(img, xAxisStart, xAxisEnd, cv::Scalar::all(USE_BLACK_COLOR));
-		// draw Y Axis.
-		line(img, yAxisStart, yAxisEnd, cv::Scalar::all(USE_BLACK_COLOR));
-	}
 };
