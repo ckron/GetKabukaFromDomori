@@ -15,12 +15,32 @@ public:
 	~Label() {};
 	void draw(cv::Mat img, int minVal, int maxVal)
 	{
-		drawLabel(img, minVal, minPos);
-		drawLabel(img, maxVal, maxPos);
+		drawLabel(img, minVal, minPos - cv::Point(10, 0));
+		drawLabel(img, maxVal, maxPos - cv::Point(10, 0));
 	}
 	void draw(cv::Mat img, std::vector<std::vector<int>>* data)
 	{
-
+		cv::Point d = cv::Point((maxPos.x - minPos.x) / data->size(),
+															(maxPos.y - minPos.y) / data->size());
+		for(int i = 0; i < data->size(); i++) {
+			std::string str = "";
+			cv::Point p = minPos + d * i;
+			p.x = p.x - 20;
+			p.y = p.y + 10;
+			for(int j = 0; j < (*data)[i].size(); j++) {
+				if(j == 2) {
+					if((*data)[i][j] == 0) {
+						str += "a";
+					} else {
+						str += "p";
+					}
+				} else {
+					str += std::to_string((*data)[i][j]) + "_";
+				}
+			}
+			cv::putText(img, str, p, cv::FONT_HERSHEY_SIMPLEX, 0.4,
+									cv::Scalar::all(USE_BLACK_COLOR));
+		}
 	}
 private:
 	cv::Point minPos;
@@ -146,6 +166,11 @@ public:
 
 		chart.draw(res, v, d);
 		label.draw(res, 0, VALUE_TENJO);
+
+		label = Label(cv::Point(GRAPH_MARGIN, height - GRAPH_MARGIN),
+									cv::Point(width - GRAPH_MARGIN, height - GRAPH_MARGIN));
+
+		label.draw(res, d);
 
 		return res;
 	}
