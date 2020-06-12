@@ -22,24 +22,28 @@ public:
 	{
 		cv::Point d = cv::Point((maxPos.x - minPos.x) / data->size(),
 															(maxPos.y - minPos.y) / data->size());
+		cv::Scalar col;
+
 		for(int i = 0; i < data->size(); i++) {
+			col = cv::Scalar::all(USE_BLACK_COLOR);
 			std::string str = "";
 			cv::Point p = minPos + d * i;
 			p.x = p.x - 20;
 			p.y = p.y + 10;
 			for(int j = 0; j < (*data)[i].size(); j++) {
 				if(j == 2) {
-					if((*data)[i][j] == 0) {
+					if((*data)[i][2] == 0) {
 						str += "a";
-					} else {
+					} else if((*data)[i][2] == 1) {
 						str += "p";
+					} else if((*data)[i][2] == -1) {
+						col = cv::Scalar(0, 0, 255);
 					}
 				} else {
 					str += std::to_string((*data)[i][j]) + "_";
 				}
 			}
-			cv::putText(img, str, p, cv::FONT_HERSHEY_SIMPLEX, 0.4,
-									cv::Scalar::all(USE_BLACK_COLOR));
+			cv::putText(img, str, p, cv::FONT_HERSHEY_SIMPLEX, 0.4, col);
 		}
 	}
 private:
