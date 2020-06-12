@@ -6,8 +6,27 @@
 #include "KabukaDetector.h"
 #include "Graph.h"
 
+bool isUri(cv::Mat img);
 std::vector<std::string> split(std::string str, char delim);
 std::vector<std::string> getDirectoryPathList(const char* dirPath);
+
+bool isUri(cv::Mat img)
+{
+	cv::Mat res;
+	cv::Mat uri = cv::imread("img/00_key/uri.jpg");
+	cv::matchTemplate(img, uri, res, cv::TM_CCOEFF_NORMED);
+
+	cv::Point maxLoc;
+	double maxVal;
+
+	cv::minMaxLoc(res, NULL, &maxVal, NULL, &maxLoc);
+
+	if(maxVal > 0.95) {
+		return true;
+	}
+
+	return false;
+}
 
 std::vector<std::string> split(std::string str, char delim)
 {
@@ -65,10 +84,16 @@ int main(int argc, char* argv[])
 			exit(0);
 		}
 		int kabuka = kd.pickupKabuka(src);
+		if(kabuka == 0) { continue; }
 
 		kabukaList.push_back(kabuka);
-		dateList.push_back(d);
 		std::cout << kabuka << std::endl;
+
+		if(isUri(src)) {
+			d[2] = -1;
+		}
+
+		dateList.push_back(d);
 	}
 
 	Graph gp;
