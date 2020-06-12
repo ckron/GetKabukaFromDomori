@@ -16,6 +16,8 @@ public:
 		std::vector<int> poss;
 		std::vector<int> vals;
 
+		bool isFind = false;
+
 		for (int i = 0; i < MAX_KEYS; i++) {
 			finds[i] = find(img, keys[i], 0.95);
 		}
@@ -23,11 +25,14 @@ public:
 		for (int i = 0; i < MAX_KEYS; i++) {
 			if (finds[i].size() == 0) { continue; }
 
+			isFind = true;
 			for (int p = 0; p < finds[i].size(); p++) {
 				poss.push_back(finds[i][p].x);
 				vals.push_back(i);
 			}
 		}
+
+		if(!isFind) { return 0; }
 
 		sortKabuketa(&poss, &vals);
 
