@@ -58,7 +58,7 @@ std::vector<std::string> getDirectoryPathList(const char* dirPath)
 
 int main(int argc, char* argv[])
 {
-	std::vector<std::string> pathList = getDirectoryPathList("img/sample");
+	std::vector<std::string> pathList = getDirectoryPathList("imgs");
 
 	KabukaDetector kd;
 	std::vector<int> kabukaList;
