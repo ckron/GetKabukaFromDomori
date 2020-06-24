@@ -38,6 +38,7 @@ public:
 						str += "p";
 					} else if((*data)[i][2] == -1) {
 						col = cv::Scalar(0, 0, 255);
+						str.pop_back();
 					}
 				} else {
 					str += std::to_string((*data)[i][j]) + "_";
