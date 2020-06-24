@@ -69,7 +69,7 @@ int main(int argc, char* argv[])
 		std::filesystem::path fpa = p;
 		std::vector<std::string> date = split(fpa.stem().string(), '_');
 		std::vector<int> d;
-		for(int i=0; i<3; i++) {
+		for(int i=1; i<4; i++) {
 			if(date[i] == std::string("a")) {
 				d.push_back(0);
 			} else if(date[i] == std::string("p")) {
@@ -80,8 +80,6 @@ int main(int argc, char* argv[])
 		}
 		if (src.cols != 1280) {
 			std::cout << "‰ð‘œ“x‚ª³‚µ‚­‚ ‚è‚Ü‚¹‚ñ(1280x720 only)" << std::endl;
-			getchar();
-			exit(0);
 		}
 		int kabuka = kd.pickupKabuka(src);
 		if(kabuka == 0) { continue; }
